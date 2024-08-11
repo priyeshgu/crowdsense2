@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Face Detection</title>
+    <script>
+        function fetchFaceCount(){
+        fetch('/face-count')
+        .then(response => response.json())
+        .then(data =>{
+        document.getElementById('face-count').innerText = 'Total Faces Detected: '+ data.totalFaces;
+        });
+
+        }
+        setInterval(fetchFaceCount, 1000);
+    </script>
 </head>
 <body>
 <h1>Live Face Detection</h1>
 <img src="/video-feed" width="640" height="480" alt="Live Feed">
+<p id="face-count"></p>
 </body>
 </html>

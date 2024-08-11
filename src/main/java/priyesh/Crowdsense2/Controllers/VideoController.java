@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class VideoController {
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
     }
     private CascadeClassifier faceDetector;
+    private int totalFacesDetected = 0;
 
     @PostConstruct
     public void init() {
@@ -32,7 +34,7 @@ public class VideoController {
 
         while (true){
             if (videoCapture.read(frame)) {
-                detectAndDrawFaces(frame);
+                totalFacesDetected =  detectAndDrawFaces(frame);
 
                 MatOfByte matOfByte = new MatOfByte();
                 Imgcodecs.imencode(".jpg", frame, matOfByte);
@@ -46,16 +48,24 @@ public class VideoController {
             }
         }
     }
-    private void detectAndDrawFaces(Mat frame) {
+    private int detectAndDrawFaces(Mat frame) {
         Mat grayFrame = new Mat();
         Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
 
         MatOfRect faces = new MatOfRect();
         faceDetector.detectMultiScale(grayFrame, faces);
-
+        int faceCount = 0;
         for (Rect rect : faces.toArray()) {
             Imgproc.rectangle(frame, rect.tl(), rect.br(), new Scalar(0, 255, 0), 3);
+            faceCount++;
         }
+        return faceCount;
+    }
+    @GetMapping("/face-count")
+    @ResponseBody
+    public String getFaceCount(){
+        return "{ \"totalFaces\": " + totalFacesDetected + " }";
+
     }
 
 
